@@ -23,6 +23,7 @@
 #include "windowcontroller.h"
 #include "windowmodelnotifier.h"
 #include "workspacecontroller.h"
+#include "screensmodel.h"
 
 
 using namespace mir::geometry;
@@ -37,6 +38,7 @@ public:
                                   qtmir::WindowController &windowController,
                                   qtmir::WorkspaceController &workspaceController,
                                   qtmir::AppNotifier &appNotifier,
+                                  const QSharedPointer<ScreensModel> screensModel,
                                   const std::shared_ptr<QtEventFeeder> &eventFeeder,
                                   const qtmir::WindowManagmentPolicyBuilder &wmBuilder);
 
@@ -74,6 +76,10 @@ public:
     void advise_resize(const miral::WindowInfo &info, const Size &newSize) override;
     void advise_delete_window(const miral::WindowInfo &windowInfo) override;
     void advise_raise(const std::vector<miral::Window> &windows) override;
+
+    void advise_output_create(miral::Output const& output) override;
+    void advise_output_update(miral::Output const& updated, miral::Output const& original) override;
+    void advise_output_delete(miral::Output const& output) override;
 
     void handle_request_drag_and_drop(miral::WindowInfo &window_info) override;
     void handle_request_move(miral::WindowInfo &window_info, const MirInputEvent *input_event) override;

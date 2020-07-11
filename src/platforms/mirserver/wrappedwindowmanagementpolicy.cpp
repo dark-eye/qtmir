@@ -65,10 +65,12 @@ namespace qtmir
     {
         WindowManagementPolicyPrivate(qtmir::WindowModelNotifier &windowModel,
                                       qtmir::AppNotifier &appNotifier,
-                                      const std::shared_ptr<QtEventFeeder>& eventFeeder)
+                                      const std::shared_ptr<QtEventFeeder>& eventFeeder,
+                                      const QSharedPointer<ScreensModel> screensModel)
             : m_windowModel(windowModel)
             , m_appNotifier(appNotifier)
             , m_eventFeeder(eventFeeder)
+            , m_screensModel(screensModel)
         {}
 
         QRect getConfinementRect(const QRect rect) const
@@ -86,6 +88,7 @@ namespace qtmir
 
         qtmir::WindowModelNotifier &m_windowModel;
         qtmir::AppNotifier &m_appNotifier;
+        const QSharedPointer<ScreensModel> m_screensModel;
         const std::shared_ptr<QtEventFeeder> m_eventFeeder;
 
         QVector<QRect> m_confinementRegions;
@@ -277,6 +280,25 @@ namespace qtmir
         miral::CanonicalWindowManagerPolicy::advise_removing_from_workspace(workspace, windows);
 
         Q_EMIT d->m_windowModel.windowsAboutToBeRemovedFromWorkspace(workspace, windows);
+    }
+
+    void WindowManagementPolicy::advise_output_create(miral::Output const& output)
+    {
+        Q_UNUSED(output);
+        Q_EMIT d->m_screensModel->update();
+    }
+
+    void WindowManagementPolicy::advise_output_update(miral::Output const& updated, miral::Output const& original)
+    {
+        Q_UNUSED(updated);
+        Q_UNUSED(original);
+        Q_EMIT d->m_screensModel->update();
+    }
+
+    void WindowManagementPolicy::advise_output_delete(miral::Output const& output)
+    {
+        Q_UNUSED(output);
+        Q_EMIT d->m_screensModel->update();
     }
 
     Rectangle WindowManagementPolicy::confirm_inherited_move(miral::WindowInfo const& windowInfo, Displacement movement)
